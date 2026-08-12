@@ -5,7 +5,7 @@ This document describes the reusable components in the web application.
 ## Modal Component
 
 ### Overview
-The `Modal` component is a reusable overlay/dialog component that displays content in a centered modal with a semi-transparent backdrop.
+The `Modal` component is a reusable overlay/dialog component that displays content in a centered modal with a semi-transparent backdrop. It supports keyboard navigation and full accessibility features.
 
 ### Location
 `src/web/app/modal.tsx`
@@ -17,16 +17,25 @@ The `Modal` component is a reusable overlay/dialog component that displays conte
 | `isOpen` | `boolean` | Yes | Controls whether the modal is visible |
 | `onClose` | `() => void` | Yes | Callback function triggered when the modal should close |
 | `children` | `ReactNode` | Yes | Content to display inside the modal |
+| `title` | `string` | No | Optional title for accessibility (aria-labelledby) |
+| `description` | `string` | No | Optional description for accessibility (aria-describedby) |
 
 ### Features
 - ✅ Conditional rendering based on `isOpen` prop
 - ✅ Semi-transparent backdrop (50% black opacity)
 - ✅ Click backdrop to close functionality
-- ✅ Built-in close button
+- ✅ **ESC key support** - press ESC to close modal
+- ✅ Built-in close button with focus management
 - ✅ Centered positioning with responsive padding
 - ✅ Dark mode support via Tailwind CSS
 - ✅ Proper z-index layering (z-50)
 - ✅ Smooth transitions
+- ✅ **Full accessibility support**:
+  - ARIA attributes (role, aria-modal, aria-labelledby, aria-describedby)
+  - Focus management (auto-focus close button)
+  - Keyboard support (ESC key)
+  - Semantic HTML structure
+  - Screen reader friendly
 
 ### Usage Example
 
@@ -43,7 +52,12 @@ export function MyComponent() {
         Open Modal
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Modal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+        title="My Modal"
+        description="This is my modal description"
+      >
         <h2>Modal Title</h2>
         <p>Modal content goes here</p>
       </Modal>
@@ -52,24 +66,35 @@ export function MyComponent() {
 }
 ```
 
+### Keyboard Support
+- **ESC Key**: Closes the modal when pressed
+- **Tab Key**: Navigates through focusable elements within the modal
+- **Enter Key**: Activates buttons and form elements
+
 ### Styling
 The component uses Tailwind CSS classes for styling:
 - Backdrop: `fixed inset-0 z-50 flex items-center justify-center`
 - Overlay: `absolute inset-0 bg-black/50 transition-opacity`
 - Modal Box: `relative z-10 rounded-lg bg-white dark:bg-zinc-800 shadow-lg p-6 max-w-sm mx-4`
-- Close Button: Standard button styling with hover effects
+- Close Button: Standard button styling with hover and focus effects
 
-### Accessibility
-- Backdrop has `aria-hidden="true"` to hide from screen readers
-- Close button has descriptive text
-- Proper semantic HTML structure
+### Accessibility Features
+- **ARIA Attributes**:
+  - `role="dialog"` - identifies the element as a dialog
+  - `aria-modal="true"` - indicates this is a modal dialog
+  - `aria-labelledby` - links to the modal title
+  - `aria-describedby` - links to the modal description
+  - `aria-hidden="true"` on backdrop - hides from screen readers
+- **Focus Management**: Close button receives focus when modal opens
+- **Keyboard Navigation**: ESC key closes the modal
+- **Semantic HTML**: Proper heading hierarchy and button labels
 
 ---
 
 ## HelloButton Component
 
 ### Overview
-The `HelloButton` component is a client-side component that displays a button which, when clicked, opens a modal with a friendly "Hello" greeting message.
+The `HelloButton` component is a client-side component that displays a button which, when clicked, opens a modal with a friendly "Hello" greeting message. It demonstrates best practices for accessible interactive components.
 
 ### Location
 `src/web/app/hello-button.tsx`
@@ -84,7 +109,12 @@ None - this is a self-contained component.
 - ✅ Displays greeting message with emoji
 - ✅ Dark mode support
 - ✅ Responsive design
-- ✅ Smooth interactions
+- ✅ **Keyboard support** (ESC to close)
+- ✅ **Full accessibility support**:
+  - ARIA labels on button
+  - Proper heading structure
+  - Focus management
+  - Keyboard navigation
 
 ### Usage Example
 
@@ -102,24 +132,32 @@ export default function Home() {
 ```
 
 ### Component Behavior
-1. Renders a blue "Say Hello" button
+1. Renders a blue "Say Hello" button with accessible label
 2. On click, opens the Modal component
 3. Modal displays "Hello! 👋" heading and welcome message
 4. User can close by:
    - Clicking the "Close" button
    - Clicking the backdrop
+   - **Pressing the ESC key**
 5. Button can be clicked again to reopen the modal
 
 ### Styling
-- Button: Blue background (`bg-blue-600 dark:bg-blue-500`) with hover effects
+- Button: Blue background (`bg-blue-600 dark:bg-blue-500`) with hover and focus effects
 - Modal Content: Centered heading with emoji and descriptive text
 - Responsive: Works on all screen sizes
+- Focus Indicators: Visible focus rings for keyboard navigation
 
 ### State Management
 Uses React's `useState` hook to manage modal visibility:
 ```tsx
 const [isOpen, setIsOpen] = useState(false);
 ```
+
+### Accessibility Features
+- **ARIA Labels**: Button has `aria-label="Open greeting overlay"`
+- **Semantic IDs**: Modal title and description have proper IDs for accessibility
+- **Focus Management**: Proper focus handling when modal opens/closes
+- **Keyboard Support**: ESC key closes the modal
 
 ---
 
@@ -129,6 +167,7 @@ const [isOpen, setIsOpen] = useState(false);
 Both components are integrated into the main page (`src/web/app/page.tsx`):
 - `HelloButton` is placed in the page header next to the "To-Do List" title
 - Provides a quick way for users to see a greeting overlay
+- Demonstrates accessible modal pattern
 
 ### How to Add More Modals
 To add additional modals to the application:
@@ -137,6 +176,7 @@ To add additional modals to the application:
 2. Manage state with `useState`
 3. Import and use the `Modal` component
 4. Pass your custom content as children
+5. Add proper ARIA labels and IDs
 
 Example:
 ```tsx
@@ -150,13 +190,20 @@ export function InfoButton() {
 
   return (
     <>
-      <button onClick={() => setIsOpen(true)}>
+      <button 
+        onClick={() => setIsOpen(true)}
+        aria-label="Open information modal"
+      >
         Show Info
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <h2>Information</h2>
-        <p>Your custom content here</p>
+      <Modal 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+        title="Information"
+      >
+        <h2 id="modal-title">Information</h2>
+        <p id="modal-description">Your custom content here</p>
       </Modal>
     </>
   );
@@ -167,7 +214,7 @@ export function InfoButton() {
 
 ## Testing
 
-Both components have comprehensive test suites:
+Both components have comprehensive test suites with full coverage of keyboard and accessibility features:
 
 ### Modal Tests
 Location: `src/web/app/__tests__/modal.test.tsx`
@@ -175,6 +222,9 @@ Location: `src/web/app/__tests__/modal.test.tsx`
 - Tests for close button functionality
 - Tests for backdrop click handling
 - Tests for children content rendering
+- **Tests for ESC key functionality**
+- **Tests for ARIA attributes**
+- **Tests for focus management**
 
 ### HelloButton Tests
 Location: `src/web/app/__tests__/hello-button.test.tsx`
@@ -182,6 +232,9 @@ Location: `src/web/app/__tests__/hello-button.test.tsx`
 - Tests for modal visibility toggling
 - Tests for modal content display
 - Tests for multiple open/close cycles
+- **Tests for ESC key functionality**
+- **Tests for ARIA labels**
+- **Tests for modal IDs**
 
 ### Running Tests
 ```bash
@@ -199,6 +252,39 @@ npm run test:watch   # Run tests in watch mode
 4. **Test user interactions** - verify open/close functionality works as expected
 5. **Consider accessibility** - use semantic HTML and ARIA attributes
 6. **Support dark mode** - use Tailwind's dark mode classes
+7. **Add ARIA labels** - provide descriptive labels for screen readers
+8. **Test keyboard navigation** - ensure ESC key and Tab work properly
+9. **Manage focus** - ensure focus is properly managed when modal opens/closes
+10. **Use semantic IDs** - give elements proper IDs for accessibility
+
+---
+
+## Keyboard Shortcuts
+
+### Modal Keyboard Support
+| Key | Action |
+|-----|--------|
+| ESC | Close the modal |
+| Tab | Navigate between focusable elements |
+| Enter | Activate buttons and form elements |
+| Space | Activate buttons |
+
+---
+
+## Accessibility Checklist
+
+When using these components, ensure:
+
+- [ ] Modal has proper ARIA attributes (role, aria-modal)
+- [ ] Modal title is linked with aria-labelledby
+- [ ] Modal description is linked with aria-describedby
+- [ ] Buttons have descriptive aria-labels
+- [ ] Focus is managed properly (auto-focus on open)
+- [ ] ESC key closes the modal
+- [ ] Backdrop click closes the modal
+- [ ] Close button is always visible and accessible
+- [ ] Color contrast meets WCAG standards
+- [ ] Keyboard navigation works properly
 
 ---
 
@@ -207,10 +293,12 @@ npm run test:watch   # Run tests in watch mode
 Potential improvements for these components:
 
 - [ ] Add animation transitions (fade-in/fade-out)
-- [ ] Add keyboard support (ESC key to close)
 - [ ] Add size variants (small, medium, large)
 - [ ] Add position variants (top, center, bottom)
 - [ ] Add custom styling props
 - [ ] Add loading state support
 - [ ] Add form support in modals
 - [ ] Add stacking support for multiple modals
+- [ ] Add custom backdrop colors
+- [ ] Add transition duration customization
+- [ ] Add onOpen callback

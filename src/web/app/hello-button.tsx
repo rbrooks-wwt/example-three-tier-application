@@ -15,6 +15,8 @@ import { Modal } from './modal';
  * - Integrated Modal component for overlay display
  * - Dark mode support
  * - Responsive design
+ * - Keyboard support (ESC to close)
+ * - Full accessibility support
  * - Reusable pattern for other modal-based features
  *
  * @example
@@ -23,10 +25,7 @@ import { Modal } from './modal';
  *
  * export default function Home() {
  *   return (
- *     <div>
- *       <h1>Welcome</h1>
- *       <HelloButton />
- *     </div>\n *   );\n * }\n * ```
+ *     <div>\n *       <h1>Welcome</h1>\n *       <HelloButton />\n *     </div>\n *   );\n * }\n * ```
  *
  * @returns The HelloButton component with integrated modal
  */
@@ -39,17 +38,18 @@ export function HelloButton() {
       {/* Button to trigger modal */}
       <button
         onClick={() => setIsOpen(true)}
-        className="rounded-lg bg-blue-600 dark:bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors"
+        className="rounded-lg bg-blue-600 dark:bg-blue-500 px-4 py-2 font-medium text-white hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-zinc-900"
+        aria-label="Open greeting overlay"
       >
         Say Hello
       </button>
 
       {/* Modal with greeting message */}
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+        <h2 id="modal-title" className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
           Hello! 👋
         </h2>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+        <p id="modal-description" className="mt-2 text-zinc-600 dark:text-zinc-400">
           Welcome to the overlay!
         </p>
       </Modal>

@@ -59,4 +59,37 @@ describe('HelloButton Component', () => {
     fireEvent.click(sayHelloButton);
     expect(screen.getByText(/welcome to the overlay/i)).toBeInTheDocument();
   });
+
+  it('should close modal when ESC key is pressed', () => {
+    render(<HelloButton />);
+    const sayHelloButton = screen.getByRole('button', { name: /say hello/i });
+    fireEvent.click(sayHelloButton);
+    
+    // Modal should be visible
+    expect(screen.getByText(/welcome to the overlay/i)).toBeInTheDocument();
+    
+    // Press ESC key
+    fireEvent.keyDown(document, { key: 'Escape' });
+    
+    // Modal should be hidden
+    expect(screen.queryByText(/welcome to the overlay/i)).not.toBeInTheDocument();
+  });
+
+  it('should have proper ARIA labels', () => {
+    render(<HelloButton />);
+    const sayHelloButton = screen.getByRole('button', { name: /open greeting overlay/i });
+    expect(sayHelloButton).toBeInTheDocument();
+  });
+
+  it('should have modal title and description with proper IDs', () => {
+    render(<HelloButton />);
+    const sayHelloButton = screen.getByRole('button', { name: /say hello/i });
+    fireEvent.click(sayHelloButton);
+    
+    const title = screen.getByText(/hello/i);
+    const description = screen.getByText(/welcome to the overlay/i);
+    
+    expect(title).toHaveAttribute('id', 'modal-title');
+    expect(description).toHaveAttribute('id', 'modal-description');
+  });
 });

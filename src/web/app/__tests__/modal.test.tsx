@@ -65,4 +65,57 @@ describe('Modal Component', () => {
     expect(screen.getByText('Modal Title')).toBeInTheDocument();
     expect(screen.getByText('Modal Description')).toBeInTheDocument();
   });
+
+  it('should call onClose when ESC key is pressed', () => {
+    const mockOnClose = jest.fn();
+    render(
+      <Modal isOpen={true} onClose={mockOnClose}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not call onClose when other keys are pressed', () => {
+    const mockOnClose = jest.fn();
+    render(
+      <Modal isOpen={true} onClose={mockOnClose}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    fireEvent.keyDown(document, { key: 'Enter' });
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('should have proper ARIA attributes', () => {
+    const { container } = render(
+      <Modal isOpen={true} onClose={() => {}}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    const dialog = container.querySelector('[role="dialog"]');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+  });
+
+  it('should focus close button when modal opens', () => {
+    render(
+      <Modal isOpen={true} onClose={() => {}}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    expect(closeButton).toHaveFocus();
+  });
+
+  it('should not respond to ESC key when modal is closed', () => {
+    const mockOnClose = jest.fn();
+    render(
+      <Modal isOpen={false} onClose={mockOnClose}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(mockOnClose).not.toHaveBeenCalled();
+  });
 });
