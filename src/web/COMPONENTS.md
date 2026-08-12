@@ -5,7 +5,7 @@ This document describes the reusable components in the web application.
 ## Modal Component
 
 ### Overview
-The `Modal` component is a reusable overlay/dialog component that displays content in a centered modal with a semi-transparent backdrop. It supports keyboard navigation, full accessibility features, and smooth animations.
+The `Modal` component is a reusable overlay/dialog component that displays content in a centered modal with a semi-transparent backdrop. It supports keyboard navigation, full accessibility features, smooth animations, and multiple size variants.
 
 ### Location
 `src/web/app/modal.tsx`
@@ -20,6 +20,7 @@ The `Modal` component is a reusable overlay/dialog component that displays conte
 | `title` | `string` | No | Optional title for accessibility (aria-labelledby) |
 | `description` | `string` | No | Optional description for accessibility (aria-describedby) |
 | `animationDuration` | `number` | No | Animation duration in milliseconds (default: 300) |
+| `size` | `'small' \| 'medium' \| 'large'` | No | Size variant of the modal (default: 'medium') |
 
 ### Features
 - ✅ Conditional rendering based on `isOpen` prop
@@ -35,6 +36,10 @@ The `Modal` component is a reusable overlay/dialog component that displays conte
   - Slide-in/slide-out for modal content
   - Customizable animation duration
   - Proper animation cleanup on unmount
+- ✅ **Size variants**:
+  - Small (320px max-width)
+  - Medium (384px max-width) - default
+  - Large (672px max-width)
 - ✅ **Full accessibility support**:
   - ARIA attributes (role, aria-modal, aria-labelledby, aria-describedby)
   - Focus management (auto-focus close button)
@@ -63,6 +68,7 @@ export function MyComponent() {
         title="My Modal"
         description="This is my modal description"
         animationDuration={300}
+        size="large"
       >
         <h2>Modal Title</h2>
         <p>Modal content goes here</p>
@@ -71,6 +77,43 @@ export function MyComponent() {
   );
 }
 ```
+
+### Size Variants
+
+The modal supports three size variants to accommodate different content types:
+
+**Small (max-width: 320px)**
+- Best for: Simple confirmations, alerts, brief messages
+- Use case: "Are you sure?" dialogs, quick notifications
+- Example:
+  ```tsx
+  <Modal isOpen={isOpen} onClose={onClose} size="small">
+    <p>Confirm this action?</p>
+  </Modal>
+  ```
+
+**Medium (max-width: 384px) - Default**
+- Best for: Standard forms, typical content, most use cases
+- Use case: Login forms, settings, standard dialogs
+- Example:
+  ```tsx
+  <Modal isOpen={isOpen} onClose={onClose} size="medium">
+    <form>...</form>
+  </Modal>
+  ```
+
+**Large (max-width: 672px)**
+- Best for: Complex forms, detailed content, multiple sections
+- Use case: Detailed forms, rich content, multi-step dialogs
+- Example:
+  ```tsx
+  <Modal isOpen={isOpen} onClose={onClose} size="large">
+    <div>
+      <h2>Detailed Information</h2>
+      <p>Long form content...</p>
+    </div>
+  </Modal>
+  ```
 
 ### Animation Details
 
@@ -100,7 +143,7 @@ The modal includes smooth animations for a polished user experience:
 The component uses Tailwind CSS classes for styling:
 - Backdrop: `fixed inset-0 z-50 flex items-center justify-center`
 - Overlay: `absolute inset-0 bg-black/50 transition-opacity`
-- Modal Box: `relative z-10 rounded-lg bg-white dark:bg-zinc-800 shadow-lg p-6 max-w-sm mx-4`
+- Modal Box: `relative z-10 rounded-lg bg-white dark:bg-zinc-800 shadow-lg p-6 {sizeClass} mx-4`
 - Close Button: Standard button styling with hover and focus effects
 
 ### Animation Classes
@@ -213,7 +256,7 @@ To add additional modals to the application:
 3. Import and use the `Modal` component
 4. Pass your custom content as children
 5. Add proper ARIA labels and IDs
-6. Optionally customize animation duration
+6. Optionally customize animation duration and size
 
 Example:
 ```tsx
@@ -239,6 +282,7 @@ export function InfoButton() {
         onClose={() => setIsOpen(false)}
         title="Information"
         animationDuration={400}
+        size="large"
       >
         <h2 id="modal-title">Information</h2>
         <p id="modal-description">Your custom content here</p>
@@ -252,7 +296,7 @@ export function InfoButton() {
 
 ## Testing
 
-Both components have comprehensive test suites with full coverage of keyboard, accessibility, and animation features:
+Both components have comprehensive test suites with full coverage of keyboard, accessibility, animation, and size variant features:
 
 ### Modal Tests
 Location: `src/web/app/__tests__/modal.test.tsx`
@@ -266,6 +310,8 @@ Location: `src/web/app/__tests__/modal.test.tsx`
 - **Tests for animation classes**
 - **Tests for custom animation duration**
 - **Tests for animation completion and unmounting**
+- **Tests for size variants (small, medium, large)**
+- **Tests for size class application**
 
 ### HelloButton Tests
 Location: `src/web/app/__tests__/hello-button.test.tsx`
@@ -299,6 +345,8 @@ npm run test:watch   # Run tests in watch mode
 10. **Use semantic IDs** - give elements proper IDs for accessibility
 11. **Customize animations** - adjust `animationDuration` for different use cases
 12. **Test animations** - verify animations work smoothly across browsers
+13. **Choose appropriate size** - select size variant based on content type
+14. **Test responsive behavior** - verify modals work on all screen sizes
 
 ---
 
@@ -330,6 +378,8 @@ When using these components, ensure:
 - [ ] Keyboard navigation works properly
 - [ ] Animations are smooth and not jarring
 - [ ] Animations respect user preferences (prefers-reduced-motion)
+- [ ] Size variant is appropriate for content
+- [ ] Modal is responsive on all screen sizes
 
 ---
 
@@ -370,11 +420,22 @@ To customize animations, modify the keyframes in `globals.css`:
 
 ---
 
+## Size Variant Reference
+
+### Tailwind Max-Width Classes
+
+| Size | Class | Max-Width | Use Case |
+|------|-------|-----------|----------|
+| Small | `max-w-xs` | 320px | Alerts, confirmations |
+| Medium | `max-w-sm` | 384px | Standard forms, dialogs |
+| Large | `max-w-2xl` | 672px | Complex forms, rich content |
+
+---
+
 ## Future Enhancements
 
 Potential improvements for these components:
 
-- [ ] Add size variants (small, medium, large)
 - [ ] Add position variants (top, center, bottom)
 - [ ] Add custom styling props
 - [ ] Add loading state support
@@ -384,3 +445,4 @@ Potential improvements for these components:
 - [ ] Add onOpen callback
 - [ ] Add transition easing options
 - [ ] Add scroll behavior customization
+- [ ] Add custom close button styling

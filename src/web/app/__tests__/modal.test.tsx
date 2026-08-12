@@ -22,7 +22,8 @@ describe('Modal Component', () => {
 
   it('should render the close button', () => {
     render(
-      <Modal isOpen={true} onClose={() => {}}>\n        <p>Test Content</p>
+      <Modal isOpen={true} onClose={() => {}}>
+        <p>Test Content</p>
       </Modal>
     );
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument();
@@ -186,5 +187,59 @@ describe('Modal Component', () => {
       },
       { timeout: 200 }
     );
+  });
+
+  describe('Size Variants', () => {
+    it('should render with default medium size', () => {
+      const { container } = render(
+        <Modal isOpen={true} onClose={() => {}}>
+          <p>Test Content</p>
+        </Modal>
+      );
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog).toHaveClass('max-w-sm');
+    });
+
+    it('should render with small size', () => {
+      const { container } = render(
+        <Modal isOpen={true} onClose={() => {}} size="small">
+          <p>Test Content</p>
+        </Modal>
+      );
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog).toHaveClass('max-w-xs');
+    });
+
+    it('should render with medium size', () => {
+      const { container } = render(
+        <Modal isOpen={true} onClose={() => {}} size="medium">
+          <p>Test Content</p>
+        </Modal>
+      );
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog).toHaveClass('max-w-sm');
+    });
+
+    it('should render with large size', () => {
+      const { container } = render(
+        <Modal isOpen={true} onClose={() => {}} size="large">
+          <p>Test Content</p>
+        </Modal>
+      );
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog).toHaveClass('max-w-2xl');
+    });
+
+    it('should not have conflicting size classes', () => {
+      const { container } = render(
+        <Modal isOpen={true} onClose={() => {}} size="large">
+          <p>Test Content</p>
+        </Modal>
+      );
+      const dialog = container.querySelector('[role="dialog"]');
+      expect(dialog).toHaveClass('max-w-2xl');
+      expect(dialog).not.toHaveClass('max-w-sm');
+      expect(dialog).not.toHaveClass('max-w-xs');
+    });
   });
 });
