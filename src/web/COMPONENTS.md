@@ -5,7 +5,7 @@ This document describes the reusable components in the web application.
 ## Modal Component
 
 ### Overview
-The `Modal` component is a reusable overlay/dialog component that displays content in a centered modal with a semi-transparent backdrop. It supports keyboard navigation and full accessibility features.
+The `Modal` component is a reusable overlay/dialog component that displays content in a centered modal with a semi-transparent backdrop. It supports keyboard navigation, full accessibility features, and smooth animations.
 
 ### Location
 `src/web/app/modal.tsx`
@@ -19,6 +19,7 @@ The `Modal` component is a reusable overlay/dialog component that displays conte
 | `children` | `ReactNode` | Yes | Content to display inside the modal |
 | `title` | `string` | No | Optional title for accessibility (aria-labelledby) |
 | `description` | `string` | No | Optional description for accessibility (aria-describedby) |
+| `animationDuration` | `number` | No | Animation duration in milliseconds (default: 300) |
 
 ### Features
 - ✅ Conditional rendering based on `isOpen` prop
@@ -29,7 +30,11 @@ The `Modal` component is a reusable overlay/dialog component that displays conte
 - ✅ Centered positioning with responsive padding
 - ✅ Dark mode support via Tailwind CSS
 - ✅ Proper z-index layering (z-50)
-- ✅ Smooth transitions
+- ✅ **Smooth animations**:
+  - Fade-in/fade-out for backdrop
+  - Slide-in/slide-out for modal content
+  - Customizable animation duration
+  - Proper animation cleanup on unmount
 - ✅ **Full accessibility support**:
   - ARIA attributes (role, aria-modal, aria-labelledby, aria-describedby)
   - Focus management (auto-focus close button)
@@ -57,6 +62,7 @@ export function MyComponent() {
         onClose={() => setIsOpen(false)}
         title="My Modal"
         description="This is my modal description"
+        animationDuration={300}
       >
         <h2>Modal Title</h2>
         <p>Modal content goes here</p>
@@ -65,6 +71,25 @@ export function MyComponent() {
   );
 }
 ```
+
+### Animation Details
+
+The modal includes smooth animations for a polished user experience:
+
+**Backdrop Animation:**
+- **Enter**: Fades in from 0% to 100% opacity
+- **Exit**: Fades out from 100% to 0% opacity
+- Duration: Customizable (default: 300ms)
+
+**Modal Content Animation:**
+- **Enter**: Slides up from 20px below with fade-in
+- **Exit**: Slides down 20px with fade-out
+- Duration: Customizable (default: 300ms)
+
+**Animation Lifecycle:**
+1. When `isOpen` becomes `true`: Component renders and immediately applies enter animations
+2. When `isOpen` becomes `false`: Exit animations play, then component unmounts after animation completes
+3. Animation duration can be customized via `animationDuration` prop
 
 ### Keyboard Support
 - **ESC Key**: Closes the modal when pressed
@@ -78,6 +103,13 @@ The component uses Tailwind CSS classes for styling:
 - Modal Box: `relative z-10 rounded-lg bg-white dark:bg-zinc-800 shadow-lg p-6 max-w-sm mx-4`
 - Close Button: Standard button styling with hover and focus effects
 
+### Animation Classes
+Animation classes are defined in `globals.css`:
+- `.modal-backdrop-enter` - Fade-in animation for backdrop
+- `.modal-backdrop-exit` - Fade-out animation for backdrop
+- `.modal-content-enter` - Slide-in animation for modal content
+- `.modal-content-exit` - Slide-out animation for modal content
+
 ### Accessibility Features
 - **ARIA Attributes**:
   - `role="dialog"` - identifies the element as a dialog
@@ -88,13 +120,14 @@ The component uses Tailwind CSS classes for styling:
 - **Focus Management**: Close button receives focus when modal opens
 - **Keyboard Navigation**: ESC key closes the modal
 - **Semantic HTML**: Proper heading hierarchy and button labels
+- **Animation Accessibility**: Animations respect `prefers-reduced-motion` (via CSS)
 
 ---
 
 ## HelloButton Component
 
 ### Overview
-The `HelloButton` component is a client-side component that displays a button which, when clicked, opens a modal with a friendly "Hello" greeting message. It demonstrates best practices for accessible interactive components.
+The `HelloButton` component is a client-side component that displays a button which, when clicked, opens a modal with a friendly "Hello" greeting message. It demonstrates best practices for accessible interactive components with smooth animations.
 
 ### Location
 `src/web/app/hello-button.tsx`
@@ -105,11 +138,12 @@ None - this is a self-contained component.
 ### Features
 - ✅ Client-side state management with React hooks
 - ✅ "Say Hello" button with blue styling
-- ✅ Integrated Modal component
+- ✅ Integrated Modal component with animations
 - ✅ Displays greeting message with emoji
 - ✅ Dark mode support
 - ✅ Responsive design
 - ✅ **Keyboard support** (ESC to close)
+- ✅ **Smooth animations** (fade-in/slide-in)
 - ✅ **Full accessibility support**:
   - ARIA labels on button
   - Proper heading structure
@@ -133,19 +167,20 @@ export default function Home() {
 
 ### Component Behavior
 1. Renders a blue "Say Hello" button with accessible label
-2. On click, opens the Modal component
+2. On click, opens the Modal component with smooth animation
 3. Modal displays "Hello! 👋" heading and welcome message
 4. User can close by:
    - Clicking the "Close" button
    - Clicking the backdrop
    - **Pressing the ESC key**
-5. Button can be clicked again to reopen the modal
+5. Button can be clicked again to reopen the modal with animation
 
 ### Styling
 - Button: Blue background (`bg-blue-600 dark:bg-blue-500`) with hover and focus effects
 - Modal Content: Centered heading with emoji and descriptive text
 - Responsive: Works on all screen sizes
 - Focus Indicators: Visible focus rings for keyboard navigation
+- Animations: Smooth fade-in/slide-in effects
 
 ### State Management
 Uses React's `useState` hook to manage modal visibility:
@@ -158,6 +193,7 @@ const [isOpen, setIsOpen] = useState(false);
 - **Semantic IDs**: Modal title and description have proper IDs for accessibility
 - **Focus Management**: Proper focus handling when modal opens/closes
 - **Keyboard Support**: ESC key closes the modal
+- **Animation Accessibility**: Animations are smooth and non-intrusive
 
 ---
 
@@ -167,7 +203,7 @@ const [isOpen, setIsOpen] = useState(false);
 Both components are integrated into the main page (`src/web/app/page.tsx`):
 - `HelloButton` is placed in the page header next to the "To-Do List" title
 - Provides a quick way for users to see a greeting overlay
-- Demonstrates accessible modal pattern
+- Demonstrates accessible modal pattern with animations
 
 ### How to Add More Modals
 To add additional modals to the application:
@@ -177,6 +213,7 @@ To add additional modals to the application:
 3. Import and use the `Modal` component
 4. Pass your custom content as children
 5. Add proper ARIA labels and IDs
+6. Optionally customize animation duration
 
 Example:
 ```tsx
@@ -201,6 +238,7 @@ export function InfoButton() {
         isOpen={isOpen} 
         onClose={() => setIsOpen(false)}
         title="Information"
+        animationDuration={400}
       >
         <h2 id="modal-title">Information</h2>
         <p id="modal-description">Your custom content here</p>
@@ -214,7 +252,7 @@ export function InfoButton() {
 
 ## Testing
 
-Both components have comprehensive test suites with full coverage of keyboard and accessibility features:
+Both components have comprehensive test suites with full coverage of keyboard, accessibility, and animation features:
 
 ### Modal Tests
 Location: `src/web/app/__tests__/modal.test.tsx`
@@ -225,6 +263,9 @@ Location: `src/web/app/__tests__/modal.test.tsx`
 - **Tests for ESC key functionality**
 - **Tests for ARIA attributes**
 - **Tests for focus management**
+- **Tests for animation classes**
+- **Tests for custom animation duration**
+- **Tests for animation completion and unmounting**
 
 ### HelloButton Tests
 Location: `src/web/app/__tests__/hello-button.test.tsx`
@@ -256,6 +297,8 @@ npm run test:watch   # Run tests in watch mode
 8. **Test keyboard navigation** - ensure ESC key and Tab work properly
 9. **Manage focus** - ensure focus is properly managed when modal opens/closes
 10. **Use semantic IDs** - give elements proper IDs for accessibility
+11. **Customize animations** - adjust `animationDuration` for different use cases
+12. **Test animations** - verify animations work smoothly across browsers
 
 ---
 
@@ -285,6 +328,45 @@ When using these components, ensure:
 - [ ] Close button is always visible and accessible
 - [ ] Color contrast meets WCAG standards
 - [ ] Keyboard navigation works properly
+- [ ] Animations are smooth and not jarring
+- [ ] Animations respect user preferences (prefers-reduced-motion)
+
+---
+
+## Animation Customization
+
+### Adjusting Animation Duration
+
+To use a different animation duration, pass the `animationDuration` prop:
+
+```tsx
+// Slower animation (500ms)
+<Modal isOpen={isOpen} onClose={onClose} animationDuration={500}>
+  Content
+</Modal>
+
+// Faster animation (200ms)
+<Modal isOpen={isOpen} onClose={onClose} animationDuration={200}>
+  Content
+</Modal>
+```
+
+### Custom Animation Styles
+
+To customize animations, modify the keyframes in `globals.css`:
+
+```css
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px); /* Adjust distance */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+```
 
 ---
 
@@ -292,7 +374,6 @@ When using these components, ensure:
 
 Potential improvements for these components:
 
-- [ ] Add animation transitions (fade-in/fade-out)
 - [ ] Add size variants (small, medium, large)
 - [ ] Add position variants (top, center, bottom)
 - [ ] Add custom styling props
@@ -300,5 +381,6 @@ Potential improvements for these components:
 - [ ] Add form support in modals
 - [ ] Add stacking support for multiple modals
 - [ ] Add custom backdrop colors
-- [ ] Add transition duration customization
 - [ ] Add onOpen callback
+- [ ] Add transition easing options
+- [ ] Add scroll behavior customization

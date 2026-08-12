@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 
 /**
  * Props for the Modal component
@@ -16,6 +16,8 @@ interface ModalProps {
   title?: string;
   /** Optional description for accessibility (aria-describedby) */
   description?: string;
+  /** Animation duration in milliseconds (default: 300) */
+  animationDuration?: number;
 }
 
 /**
@@ -27,25 +29,30 @@ interface ModalProps {
  * - Clicking the close button
  * - Pressing the ESC key
  *
+ * Features:
+ * - Smooth fade-in/fade-out animations for backdrop
+ * - Smooth slide-in/slide-out animations for modal content
+ * - Customizable animation duration
+ *
  * Accessibility features:
  * - Proper ARIA attributes for screen readers
  * - Focus management
  * - Keyboard support (ESC key)
  * - Semantic HTML structure
  *
- * @example
- * ```tsx
- * const [isOpen, setIsOpen] = useState(false);
- *
- * return (
- *   <>\n *     <button onClick={() => setIsOpen(true)}>Open</button>\n *     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>\n *       <h2>Title</h2>\n *       <p>Content</p>\n *     </Modal>\n *   </>\n * );\n * ```
- *
- * @param props - The component props
- * @returns The modal component or null if not open
- */
-export function Modal({ isOpen, onClose, children, title, description }: ModalProps) {
+ * @example\n * ```tsx\n * const [isOpen, setIsOpen] = useState(false);\n *\n * return (\n *   <>\n *     <button onClick={() => setIsOpen(true)}>Open</button>\n *     <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>\n *       <h2>Title</h2>\n *       <p>Content</p>\n *     </Modal>\n *   </>\n * );\n * ```\n *\n * @param props - The component props\n * @returns The modal component or null if not open\n */
+export function Modal({
+  isOpen,
+  onClose,
+  children,
+  title,
+  description,
+  animationDuration = 300,
+}: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
 
   // Handle keyboard events (ESC key to close)
   useEffect(() => {
@@ -71,8 +78,25 @@ export function Modal({ isOpen, onClose, children, title, description }: ModalPr
     };
   }, [isOpen, onClose]);
 
-  // Don't render anything if modal is closed
-  if (!isOpen) return null;
+  // Handle animation states
+  useEffect(() => {
+    if (isOpen) {
+      // Opening: render immediately and start animation
+      setShouldRender(true);
+      // Small delay to ensure DOM is updated before animation starts
+      const timer = setTimeout(() => setIsAnimating(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      // Closing: start exit animation
+      setIsAnimating(false);
+      // Wait for animation to complete before unmounting
+      const timer = setTimeout(() => setShouldRender(false), animationDuration);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, animationDuration]);
+
+  // Don't render anything if modal is not open and animation is complete
+  if (!shouldRender) return null;
 
   return (
     <div
@@ -81,19 +105,29 @@ export function Modal({ isOpen, onClose, children, title, description }: ModalPr
     >
       {/* Backdrop - semi-transparent overlay that closes modal on click */}
       <div
-        className="absolute inset-0 bg-black/50 transition-opacity"
+        className={`absolute inset-0 bg-black/50 transition-opacity ${
+          isAnimating ? 'modal-backdrop-enter' : 'modal-backdrop-exit'
+        }`}
         onClick={onClose}
         aria-hidden="true"
+        style={{
+          animationDuration: `${animationDuration}ms`,
+        }}
       />
 
       {/* Modal Content - centered box with children and close button */}
       <div
         ref={modalRef}
-        className="relative z-10 rounded-lg bg-white dark:bg-zinc-800 shadow-lg p-6 max-w-sm mx-4"
+        className={`relative z-10 rounded-lg bg-white dark:bg-zinc-800 shadow-lg p-6 max-w-sm mx-4 ${
+          isAnimating ? 'modal-content-enter' : 'modal-content-exit'
+        }`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
         aria-describedby={description ? 'modal-description' : undefined}
+        style={{
+          animationDuration: `${animationDuration}ms`,
+        }}
       >
         {children}
         <button

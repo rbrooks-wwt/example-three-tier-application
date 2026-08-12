@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Modal } from './modal';
 
 describe('Modal Component', () => {
@@ -22,8 +22,7 @@ describe('Modal Component', () => {
 
   it('should render the close button', () => {
     render(
-      <Modal isOpen={true} onClose={() => {}}>
-        <p>Test Content</p>
+      <Modal isOpen={true} onClose={() => {}}>\n        <p>Test Content</p>
       </Modal>
     );
     expect(screen.getByRole('button', { name: /close/i })).toBeInTheDocument();
@@ -117,5 +116,75 @@ describe('Modal Component', () => {
     );
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(mockOnClose).not.toHaveBeenCalled();
+  });
+
+  it('should apply enter animation class when opening', () => {
+    const { container } = render(
+      <Modal isOpen={true} onClose={() => {}}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    const backdrop = container.querySelector('.modal-backdrop-enter');
+    const content = container.querySelector('.modal-content-enter');
+    expect(backdrop).toBeInTheDocument();
+    expect(content).toBeInTheDocument();
+  });
+
+  it('should apply exit animation class when closing', async () => {
+    const { container, rerender } = render(
+      <Modal isOpen={true} onClose={() => {}}>
+        <p>Test Content</p>
+      </Modal>
+    );
+
+    // Close the modal
+    rerender(
+      <Modal isOpen={false} onClose={() => {}}>
+        <p>Test Content</p>
+      </Modal>
+    );
+
+    // Check for exit animation classes
+    const backdrop = container.querySelector('.modal-backdrop-exit');
+    const content = container.querySelector('.modal-content-exit');
+    expect(backdrop).toBeInTheDocument();
+    expect(content).toBeInTheDocument();
+  });
+
+  it('should accept custom animation duration', () => {
+    const { container } = render(
+      <Modal isOpen={true} onClose={() => {}} animationDuration={500}>
+        <p>Test Content</p>
+      </Modal>
+    );
+    const backdrop = container.querySelector('.absolute.inset-0');
+    const content = container.querySelector('[role="dialog"]');
+    expect(backdrop).toHaveStyle('animationDuration: 500ms');
+    expect(content).toHaveStyle('animationDuration: 500ms');
+  });
+
+  it('should unmount after animation completes on close', async () => {
+    const { container, rerender } = render(
+      <Modal isOpen={true} onClose={() => {}} animationDuration={100}>
+        <p>Test Content</p>
+      </Modal>
+    );
+
+    expect(screen.getByText('Test Content')).toBeInTheDocument();
+
+    // Close the modal
+    rerender(
+      <Modal isOpen={false} onClose={() => {}} animationDuration={100}>
+        <p>Test Content</p>
+      </Modal>
+    );
+
+    // Wait for animation to complete
+    await waitFor(
+      () => {
+        expect(container.firstChild).toBeNull();
+      },
+      { timeout: 200 }
+    );
   });
 });
