@@ -11,7 +11,16 @@ export default async function Home() {
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-50">
             To-Do List
           </h1>
-          <HelloButton />
+          <div className="flex items-center gap-2">
+            <HelloButton />
+            <a
+              href="/showcase"
+              className="rounded-lg bg-amber-600 dark:bg-amber-500 px-4 py-2 font-medium text-white hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors text-sm"
+              title="View component showcase and demos"
+            >
+              Showcase
+            </a>
+          </div>
         </div>
 
         {/* Add task form */}
