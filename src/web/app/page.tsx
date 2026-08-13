@@ -25,6 +25,11 @@ export default async function Home() {
           </div>
         </div>
 
+        {/* Hello text box */}
+        <div className="mb-8 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-4 py-3">
+          <p className="text-zinc-900 dark:text-zinc-50 font-medium">Hello</p>
+        </div>
+
         {/* Add task form */}
         <form action={createTask} className="flex gap-2 mb-8">
           <input
