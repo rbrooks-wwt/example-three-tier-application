@@ -1,0 +1,99 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  integration:
+    name: Integration Tests (Docker Compose)
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: app
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker images
+        run: docker compose build
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:3001/health 2>/dev/null; then
+              echo "API is healthy"
+              exit 0
+            fi
+            echo "Waiting for API... ($i/30)"
+            sleep 2
+          done
+          echo "API failed to start"
+          docker compose logs
+          exit 1
+
+      - name: Run API health check
+        run: |
+          curl -f http://localhost:3001/health || exit 1
+
+      - name: Test API endpoints
+        run: |
+          # Test GET /tasks
+          curl -f http://localhost:3001/tasks || exit 1
+          
+          # Test POST /tasks
+          curl -f -X POST http://localhost:3001/tasks \
+            -H "Content-Type: application/json" \
+            -d '{"title":"Test Task","description":"Test"}' || exit 1
+
+      - name: Check web service
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:3000 2>/dev/null; then
+              echo "Web is healthy"
+              exit 0
+            fi
+            echo "Waiting for Web... ($i/30)"
+            sleep 2
+          done
+          echo "Web failed to start"
+          docker compose logs
+          exit 1
+
+      - name: Collect logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Clean up
+        if: always()
+        run: docker compose down -v

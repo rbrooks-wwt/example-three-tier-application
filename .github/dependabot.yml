@@ -1,0 +1,95 @@
+version: 2
+updates:
+  # Frontend dependencies
+  - package-ecosystem: "npm"
+    directory: "/src/web"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "rbrooks-wwt"
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(web):"
+      include: "scope"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "next"
+        update-types: ["version-update:semver-major"]
+
+  # API dependencies
+  - package-ecosystem: "npm"
+    directory: "/src/api"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "rbrooks-wwt"
+    labels:
+      - "dependencies"
+      - "api"
+    commit-message:
+      prefix: "chore(api):"
+      include: "scope"
+    allow:
+      - dependency-type: "all"
+
+  # Database dependencies
+  - package-ecosystem: "npm"
+    directory: "/src/db"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "rbrooks-wwt"
+    labels:
+      - "dependencies"
+      - "database"
+    commit-message:
+      prefix: "chore(db):"
+      include: "scope"
+    allow:
+      - dependency-type: "all"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "rbrooks-wwt"
+    labels:
+      - "dependencies"
+      - "docker"
+    commit-message:
+      prefix: "chore(docker):"
+      include: "scope"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "rbrooks-wwt"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(ci):"
+      include: "scope"

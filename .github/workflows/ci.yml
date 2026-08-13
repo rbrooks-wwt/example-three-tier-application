@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # ── Lint and test frontend ───────────────────────────────────────────────────
+
+  frontend:
+    name: Frontend (Lint & Test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/web/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src/web
+        run: npm ci
+
+      - name: Run linter
+        working-directory: src/web
+        run: npm run lint
+
+      - name: Run tests
+        working-directory: src/web
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: Build
+        working-directory: src/web
+        run: npm run build
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./src/web/coverage/coverage-final.json
+          flags: frontend
+          fail_ci_if_error: false
+
+  # ── Lint and test API ────────────────────────────────────────────────────────
+
+  api:
+    name: API (Lint & Test)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/api/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src/api
+        run: npm ci
+
+      - name: Check for syntax errors
+        working-directory: src/api
+        run: node -c index.js
+
+  # ── Validate Docker builds ───────────────────────────────────────────────────
+
+  docker:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - api
+          - web
+          - db
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: src/${{ matrix.service }}
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ── Validate docker-compose ──────────────────────────────────────────────────
+
+  compose:
+    name: Docker Compose Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml
+        run: docker compose config
+
+  # ── Security scanning ────────────────────────────────────────────────────────
+
+  security:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: "trivy-results.sarif"

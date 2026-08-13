@@ -1,0 +1,121 @@
+name: Performance & Accessibility
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - "src/web/**"
+      - ".github/workflows/performance.yml"
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - "src/web/**"
+
+jobs:
+  # ── Build size analysis ──────────────────────────────────────────────────────
+
+  bundle-size:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/web/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src/web
+        run: npm ci
+
+      - name: Build
+        working-directory: src/web
+        run: npm run build
+
+      - name: Analyze bundle size
+        working-directory: src/web
+        run: |
+          echo "## Bundle Size Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next.js Build Output" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          du -sh .next || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: src/web/.next
+          retention-days: 1
+
+  # ── Accessibility audit ──────────────────────────────────────────────────────
+
+  accessibility:
+    name: Accessibility Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/web/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src/web
+        run: npm ci
+
+      - name: Check accessibility in tests
+        working-directory: src/web
+        run: npm test -- --testPathPattern="modal|hello-button" --passWithNoTests || true
+
+  # ── Performance metrics ──────────────────────────────────────────────────────
+
+  performance:
+    name: Performance Metrics
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/web/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src/web
+        run: npm ci
+
+      - name: Build for production
+        working-directory: src/web
+        run: npm run build
+
+      - name: Generate performance report
+        working-directory: src/web
+        run: |
+          echo "## Performance Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Statistics" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Build completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- Next.js version: $(npm list next | grep next@)" >> $GITHUB_STEP_SUMMARY
+          echo "- React version: $(npm list react | grep react@)" >> $GITHUB_STEP_SUMMARY

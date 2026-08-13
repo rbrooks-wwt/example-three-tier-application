@@ -1,0 +1,152 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  # ── Dependency check ─────────────────────────────────────────────────────────
+
+  dependencies:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Check for vulnerabilities in web
+        working-directory: src/web
+        run: npm audit --audit-level=moderate || true
+
+      - name: Check for vulnerabilities in api
+        working-directory: src/api
+        run: npm audit --audit-level=moderate || true
+
+      - name: Check for vulnerabilities in db
+        working-directory: src/db
+        run: npm audit --audit-level=moderate || true
+
+  # ── Code analysis ────────────────────────────────────────────────────────────
+
+  analysis:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/web/package-lock.json"
+
+      - name: Install frontend dependencies
+        working-directory: src/web
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: src/web
+        run: npm run lint -- --format json --output-file eslint-report.json || true
+
+      - name: Upload ESLint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-report
+          path: src/web/eslint-report.json
+
+  # ── Type checking ────────────────────────────────────────────────────────────
+
+  types:
+    name: Type Checking
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "src/web/package-lock.json"
+
+      - name: Install dependencies
+        working-directory: src/web
+        run: npm ci
+
+      - name: Check TypeScript types
+        working-directory: src/web
+        run: npx tsc --noEmit
+
+  # ── Documentation check ──────────────────────────────────────────────────────
+
+  docs:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check for required documentation files
+        run: |
+          files=(
+            "README.md"
+            "GUIDE.md"
+            "src/web/README.md"
+            "src/web/COMPONENTS.md"
+          )
+          
+          for file in "${files[@]}"; do
+            if [ ! -f "$file" ]; then
+              echo "Missing documentation: $file"
+              exit 1
+            fi
+          done
+          
+          echo "All required documentation files present"
+
+  # ── Dockerfile linting ───────────────────────────────────────────────────────
+
+  dockerfile:
+    name: Dockerfile Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v3
+        with:
+          dockerfile: src/api/Dockerfile
+          ignore: DL3008,DL3009
+
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v3
+        with:
+          dockerfile: src/web/Dockerfile
+          ignore: DL3008,DL3009
+
+      - name: Lint Dockerfiles
+        uses: hadolint/hadolint-action@v3
+        with:
+          dockerfile: src/db/Dockerfile
+          ignore: DL3008,DL3009
