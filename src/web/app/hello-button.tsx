@@ -25,7 +25,13 @@ import { Modal } from './modal';
  *
  * export default function Home() {
  *   return (
- *     <div>\n *       <h1>Welcome</h1>\n *       <HelloButton />\n *     </div>\n *   );\n * }\n * ```
+ *     <div>
+ *       <h1>Welcome</h1>
+ *       <HelloButton />
+ *     </div>
+ *   );
+ * }
+ * ```
  *
  * @returns The HelloButton component with integrated modal
  */
@@ -47,11 +53,8 @@ export function HelloButton() {
       {/* Modal with greeting message */}
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
         <h2 id="modal-title" className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-          Hello! 👋
+          Hello there
         </h2>
-        <p id="modal-description" className="mt-2 text-zinc-600 dark:text-zinc-400">
-          Welcome to the overlay!
-        </p>
       </Modal>
     </>
   );
