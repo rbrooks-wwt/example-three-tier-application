@@ -1,5 +1,6 @@
 import { getTasks, createTask, toggleTask } from './actions';
 import { HelloButton } from './hello-button';
+import { ExampleButton } from './example-button';
 
 export default async function Home() {
   const tasks = await getTasks();
@@ -13,6 +14,7 @@ export default async function Home() {
           </h1>
           <div className="flex items-center gap-2">
             <HelloButton />
+            <ExampleButton />
             <a
               href="/showcase"
               className="rounded-lg bg-amber-600 dark:bg-amber-500 px-4 py-2 font-medium text-white hover:bg-amber-700 dark:hover:bg-amber-600 transition-colors text-sm"
