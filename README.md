@@ -8,6 +8,8 @@ A reference implementation of a three-tier web application: a Next.js frontend w
 - **[🎨 Component Documentation](src/web/COMPONENTS.md)** - Modal component details
 - **[🚀 Frontend README](src/web/README.md)** - Frontend setup and features
 - **[🎪 Component Showcase](http://localhost:3000/showcase)** - Interactive demos (after running locally)
+- **[🔄 CI/CD Pipeline](.github/WORKFLOWS.md)** - GitHub Actions workflows
+- **[⚙️ CI/CD Setup Guide](.github/SETUP.md)** - Setup and configuration
 
 ## 🏗️ Architecture
 
@@ -22,6 +24,7 @@ Browser → Web (Next.js :3000) → API (Express :3001) → PostgreSQL
 | Database | PostgreSQL 17 | managed by Docker / Cloud SQL |
 | Migrations | node-pg-migrate | `src/db/` |
 | Infrastructure | Terraform (GCP) | `src/infrastructure/` |
+| CI/CD | GitHub Actions | `.github/workflows/` |
 
 The app is a simple task manager (to-do list) that demonstrates how the three tiers communicate, with interactive Modal components showcasing modern UI patterns.
 
@@ -42,6 +45,16 @@ The app is a simple task manager (to-do list) that demonstrates how the three ti
 - ✅ **PostgreSQL Database** with migrations
 - ✅ **Docker Compose** for local development
 - ✅ **Terraform Infrastructure** for GCP deployment
+
+### CI/CD
+- ✅ **Automated Testing** - Frontend and API validation
+- ✅ **Code Quality Checks** - Linting, type checking, security scanning
+- ✅ **Docker Image Building** - Automated builds and pushes to GHCR
+- ✅ **Integration Tests** - End-to-end testing with Docker Compose
+- ✅ **Performance Monitoring** - Bundle size and accessibility audits
+- ✅ **Dependency Management** - Automated updates via Dependabot
+- ✅ **Security Scanning** - Trivy vulnerability detection
+- ✅ **Deployment Automation** - GCP deployment with Terraform
 
 ## 🚀 Quick Start
 
@@ -115,6 +128,24 @@ See [GUIDE.md](GUIDE.md) for:
 - API reference
 - Troubleshooting
 
+### For CI/CD Pipeline
+
+See [.github/WORKFLOWS.md](.github/WORKFLOWS.md) for:
+- Workflow descriptions and triggers
+- Job details and status checks
+- Monitoring and troubleshooting
+
+See [.github/SETUP.md](.github/SETUP.md) for:
+- Complete setup instructions
+- Branch protection configuration
+- Secrets and environment setup
+- Debugging and monitoring
+
+See [.github/QUICK_REFERENCE.md](.github/QUICK_REFERENCE.md) for:
+- Common commands and tasks
+- Quick troubleshooting
+- Performance tips
+
 ## 🧪 Testing
 
 The frontend includes comprehensive test coverage:
@@ -167,9 +198,34 @@ terraform apply \
 
 See [GUIDE.md](GUIDE.md) for detailed deployment instructions.
 
+### Automated Deployment with GitHub Actions
+
+The CI/CD pipeline automatically:
+1. Builds and tests code on every push
+2. Builds Docker images and pushes to GHCR
+3. Runs integration tests
+4. Deploys to GCP on push to main branch
+
+See [.github/SETUP.md](.github/SETUP.md) for deployment configuration.
+
 ## 📁 Project Structure
 
 ```
+.github/
+├── workflows/              # GitHub Actions workflows
+│   ├── ci.yml             # Continuous Integration
+│   ├── build.yml          # Build & Push Images
+│   ├── integration-tests.yml
+│   ├── code-quality.yml
+│   ├── performance.yml
+│   └── deploy.yml         # Deployment
+├── ISSUE_TEMPLATE/        # GitHub issue templates
+├── WORKFLOWS.md           # Workflow documentation
+├── SETUP.md              # Setup guide
+├── CONFIGURATION.md      # Configuration guide
+├── QUICK_REFERENCE.md    # Quick reference
+└── dependabot.yml        # Dependabot configuration
+
 src/
 ├── api/            # Express REST API
 ├── db/             # Database migrations
@@ -227,6 +283,38 @@ DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate up
 DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate down
 ```
 
+## 🔄 CI/CD Workflows
+
+### Available Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **CI** | PR, push | Lint, test, validate |
+| **Build & Push** | Push to main/develop | Build Docker images, push to GHCR |
+| **Integration Tests** | PR, push | End-to-end tests with Docker Compose |
+| **Code Quality** | PR, push | Dependency checks, linting, type checking |
+| **Performance** | PR, push (web) | Bundle size, accessibility audits |
+| **Deploy** | Push to main, manual | Deploy to GCP with Terraform |
+
+### Status Checks
+
+All of the following checks must pass before merging to `main`:
+
+- ✓ Frontend (Lint & Test)
+- ✓ API (Lint & Test)
+- ✓ Docker Build Validation
+- ✓ Docker Compose Validation
+- ✓ Security Scanning
+- ✓ Integration Tests
+- ✓ Dependency Check
+- ✓ Code Analysis
+- ✓ Type Checking
+- ✓ Documentation Check
+- ✓ Dockerfile Linting
+- ✓ Bundle Size Analysis
+- ✓ Accessibility Audit
+- ✓ Performance Metrics
+
 ## 🆘 Troubleshooting
 
 **Port already in use?**
@@ -250,6 +338,12 @@ docker compose down -v
 docker compose up --build
 ```
 
+**Workflow not running?**
+- Check workflow file syntax in `.github/workflows/`
+- Verify GitHub Actions is enabled in repository settings
+- Check branch protection rules
+- See [.github/SETUP.md](.github/SETUP.md) for troubleshooting
+
 See [GUIDE.md](GUIDE.md) for more troubleshooting tips.
 
 ## 📖 Learn More
@@ -260,6 +354,8 @@ See [GUIDE.md](GUIDE.md) for more troubleshooting tips.
 - [Express Documentation](https://expressjs.com)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs)
 - [Terraform Documentation](https://www.terraform.io/docs)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Docker Documentation](https://docs.docker.com)
 
 ## 📝 License
 
