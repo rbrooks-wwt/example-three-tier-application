@@ -25,6 +25,16 @@ export default async function Home() {
           </div>
         </div>
 
+        {/* Hello text field */}
+        <div className="mb-8 rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-4 py-3">
+          <input
+            type="text"
+            value="hello"
+            readOnly
+            className="w-full bg-transparent text-zinc-900 dark:text-zinc-50 font-medium focus:outline-none cursor-default"
+          />
+        </div>
+
         {/* Add task form */}
         <form action={createTask} className="flex gap-2 mb-8">
           <input
