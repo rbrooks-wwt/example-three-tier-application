@@ -3,6 +3,7 @@ import { HelloButton } from './hello-button';
 import { ExampleButton } from './example-button';
 import { NewButton } from './new-button';
 import { ActionButton } from './action-button';
+import { ThemeToggle } from './theme-toggle';
 
 export default async function Home() {
   const tasks = await getTasks();
@@ -15,6 +16,7 @@ export default async function Home() {
             To-Do List
           </h1>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <HelloButton />
             <ExampleButton />
             <NewButton />
