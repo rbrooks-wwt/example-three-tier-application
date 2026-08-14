@@ -1,7 +1,8 @@
-import { getTasks, createTask, toggleTask } from './actions';
+import { getTasks, createTask, toggleTask, clearCompletedTasks } from './actions';
 
 export default async function Home() {
   const tasks = await getTasks();
+  const completedCount = tasks.filter((t) => t.completed).length;
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 py-16 px-4">
@@ -73,9 +74,21 @@ export default async function Home() {
         </ul>
 
         {tasks.length > 0 && (
-          <p className="mt-4 text-xs text-zinc-400 text-right">
-            {tasks.filter((t) => t.completed).length} / {tasks.length} completed
-          </p>
+          <div className="mt-4 flex items-center justify-between">
+            <p className="text-xs text-zinc-400">
+              {completedCount} / {tasks.length} completed
+            </p>
+            {completedCount > 0 && (
+              <form action={clearCompletedTasks}>
+                <button
+                  type="submit"
+                  className="text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 transition-colors"
+                >
+                  Clear Completed
+                </button>
+              </form>
+            )}
+          </div>
         )}
       </div>
     </div>

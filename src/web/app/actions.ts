@@ -35,3 +35,11 @@ export async function toggleTask(id: number, completed: boolean) {
   });
   revalidatePath('/');
 }
+
+export async function clearCompletedTasks() {
+  await fetch(`${API_URL}/tasks/completed`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  revalidatePath('/');
+}
